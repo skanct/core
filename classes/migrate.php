@@ -388,14 +388,14 @@ class Migrate
 			($pos = strpos($migration, '_')) === false or $migration = ltrim(substr($migration, 0, $pos), '0');
 			is_numeric($migration) and $migration = (int) $migration;
 
-			// add the file to the migrations list if it's in between version bounds
-			if ((is_null($start) or $migration > $start) and (is_null($end) or $migration <= $end))
+			// add the file to the migrations list if it's not after the version upper bound
+			if (is_null($end) or $migration <= $end)
 			{
 				// see if it is already installed
 				if ( in_array(basename($file, '.php'), $current))
 				{
-					// already installed. store it only if we're going down
-					$direction == 'down' and $migrations[$migration] = array('path' => $file);
+					// already installed. store it only if we're going down and it's not before the version lower bound
+					$direction == 'down' and $migration > $start and $migrations[$migration] = array('path' => $file);
 				}
 				else
 				{
